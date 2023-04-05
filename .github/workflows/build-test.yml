@@ -2,8 +2,7 @@ name: ✅Build And Test ✅
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
+    branches: [ main, feature/** ]
 
 jobs:
   build-test:
@@ -11,7 +10,7 @@ jobs:
     strategy:
       #      max-parallel: 3
       matrix: # https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json
-        python-version: [ "3.7","3.8","3.9","3.10","3.11" ]
+        python-version: [ "3.8","3.9","3.10","3.11" ]
     steps:
       - uses: actions/checkout@v3
 
