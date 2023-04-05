@@ -58,4 +58,4 @@ class TestPackage(unittest.TestCase):
         thread_manager = ThreadManager(func_something, thread_arguments, except_hook=func_exception_hook)
         thread_manager.run()
         # then
-        assert len(errors) == 22
+        assert len(errors) == 22, f"error length: {len(errors)}"
