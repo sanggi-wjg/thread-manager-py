@@ -2,8 +2,7 @@ import unittest
 
 import requests as requests
 
-from thread_manager import ThreadManager, ThreadArgument
-from thread_manager.decorator import using_thread
+from thread_manager import ThreadManager, ThreadArgument, using_thread
 
 
 class TestPackage(unittest.TestCase):
