@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='py-thread-manager',
+    name='thread-manager-py',
     version='0.0.1',
     url='https://github.com/sanggi-wjg/py-thread-manager',
     author='SangGi',

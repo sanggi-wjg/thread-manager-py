@@ -2,8 +2,8 @@
 Python Thread Manager
 
 [![✅Build And Test ✅](https://github.com/sanggi-wjg/py-thread-manager/actions/workflows/build-test.yml/badge.svg)](https://github.com/sanggi-wjg/py-thread-manager/actions/workflows/build-test.yml)
-[![PyPI version](https://badge.fury.io/py/py-thread-manager.svg)](https://badge.fury.io/py/py-thread-manager)
-[![PyPI](https://img.shields.io/pypi/pyversions/py-thread-manager.svg)](https://pypi.python.org/pypi/py-thread-manager)
+[![PyPI version](https://badge.fury.io/py/thread-manager-py.svg)](https://badge.fury.io/py/thread-manager-py)
+[![PyPI](https://img.shields.io/pypi/pyversions/thread-manager-py.svg)](https://pypi.python.org/pypi/thread-manager-py)
 <br/>
 [![CodeFactor](https://www.codefactor.io/repository/github/sanggi-wjg/py-thread-manager/badge)](https://www.codefactor.io/repository/github/sanggi-wjg/py-thread-manager)
 
@@ -11,7 +11,7 @@ Python Thread Manager
 
 ## Install
 ```shell
-pip install py-thread-manager
+pip install thread-manager-py
 ```
 
 
