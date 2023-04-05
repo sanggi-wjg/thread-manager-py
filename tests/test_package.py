@@ -1,9 +1,8 @@
-import time
 import unittest
 
 import requests as requests
 
-from thread_manager import ThreadManager, ThreadArgument
+from thread_manager import ThreadManager, ThreadArgument, using_thread
 
 
 class TestPackage(unittest.TestCase):
@@ -12,7 +11,6 @@ class TestPackage(unittest.TestCase):
         # given function
         def print_something(name: str, number: int):
             print(name, number)
-            time.sleep(1)
 
         # given
         thread_arguments = [
@@ -58,4 +56,15 @@ class TestPackage(unittest.TestCase):
         thread_manager = ThreadManager(func_something, thread_arguments, except_hook=func_exception_hook)
         thread_manager.run()
         # then
-        assert len(errors) == 22, f"error length: {len(errors)}"
+        assert len(errors) == 22, f"errors length: {len(errors)}"
+
+    def test_using_thread_decorator(self):
+        # given
+        @using_thread
+        def print_something(number, **kwargs):
+            print(number, kwargs)
+
+        # when
+        for i in range(10):
+            # then
+            print_something(i, name=f"thread-{i}")

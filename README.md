@@ -1,4 +1,4 @@
-# py-thread-manager
+# thread-manager-py
 Python Thread Manager
 
 [![✅Build And Test ✅](https://github.com/sanggi-wjg/py-thread-manager/actions/workflows/build-test.yml/badge.svg)](https://github.com/sanggi-wjg/py-thread-manager/actions/workflows/build-test.yml)
@@ -32,6 +32,19 @@ thread_manager = ThreadManager(print_something, thread_arguments)
 thread_manager.run()
 ```
 
+## Simple Usage with decorator
+```python
+from thread_manager import using_thread
+
+@using_thread
+def print_something(number, **kwargs):
+    print(number, kwargs)
+
+# when
+for i in range(10):
+    # then
+    print_something(i, name=f"thread-{i}")
+```
 
 ## Simple Usage with Exception Hook
 ```python
