@@ -27,3 +27,8 @@ jobs:
       - name: ✅Test
         run: |
           python -m unittest tests.test_package
+
+      - name: ✅Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
