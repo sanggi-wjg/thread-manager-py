@@ -14,6 +14,9 @@ Python Thread Manager
 pip install thread-manager-py
 ```
 
+## Usage
+### You can find examples in `tests/test_package.py`.
+
 
 ## Simple Usage
 ```python
