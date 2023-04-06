@@ -1,13 +1,15 @@
-import logging
+import collections
 import threading
 from threading import Thread, RLock
 from typing import List, Callable
 
 from .argument import ThreadArgument
 
+_thread_error_queue = collections.deque()
+
 
 def default_thread_exception_hook(*args):
-    logging.getLogger().error(f"Thread Manager error: {args}")
+    _thread_error_queue.append(*args)
 
 
 class ThreadManager:
@@ -31,6 +33,9 @@ class ThreadManager:
         self.is_interrupted: bool = False
         self.consumer_lock = RLock()
         threading.excepthook = except_hook
+
+    def get_error_queue(self) -> collections.deque:
+        return _thread_error_queue.copy()
 
     def set_concurrency(self, number: int):
         """
@@ -76,7 +81,8 @@ class ThreadManager:
     def run(self):
         start_index = 0
         while True:
-            if self.is_interrupted or (start_index >= self.total_thread_arguments_count):
+            is_exceed_index = start_index >= self.total_thread_arguments_count
+            if self.is_interrupted or is_exceed_index:
                 return
             # 만약 end_index 가 총 실행 크기 보다 크다면 end_index 를 실행 크기로 맞추어 IndexError 방지
             end_index = start_index + self.concurrency
