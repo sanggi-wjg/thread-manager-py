@@ -34,6 +34,17 @@ jobs:
       - build-test
 
     steps:
+      - uses: actions/checkout@v3
+      - name: ✅Setup Python
+        uses: actions/setup-python@4
+        with:
+          python-version: 3.11
+
+      - name: ✅Generate Report
+        run: |
+          pip install coverage
+          coverage run -m unittest
+
       - name: ✅Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
         with:
