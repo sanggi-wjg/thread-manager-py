@@ -1,7 +1,7 @@
 class ThreadArgument:
     __slots__ = ("thread_name", "args", "kwargs",)
 
-    def __init__(self, thread_name: str, args: tuple, kwargs: dict):
+    def __init__(self, thread_name: str, args: tuple, kwargs: dict = None):
         """
         Constructor
         :param thread_name: Thread Name

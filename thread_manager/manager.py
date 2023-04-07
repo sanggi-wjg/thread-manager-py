@@ -5,17 +5,11 @@ from typing import List, Callable
 
 from .argument import ThreadArgument
 
-_thread_error_queue = collections.deque()
-
-
-def default_thread_exception_hook(*args):
-    _thread_error_queue.append(*args)
-
 
 class ThreadManager:
-    default_thead_manager_concurrency = 10
+    default_concurrency = 10
 
-    def __init__(self, callable_func: Callable, thread_arguments: List[ThreadArgument], except_hook: Callable = default_thread_exception_hook):
+    def __init__(self, callable_func: Callable, thread_arguments: List[ThreadArgument], except_hook: Callable = None):
         """
         Constructor
         :param callable_func: source function, 실행할 함수
@@ -26,16 +20,29 @@ class ThreadManager:
         :type except_hook: Callable
         """
         self.func: Callable = callable_func
-        self.thread_arguments: List[ThreadArgument] = thread_arguments
-        self.total_thread_arguments_count: int = len(thread_arguments)
-        self.concurrency: int = self.default_thead_manager_concurrency
+        # threads
         self.threads: List[Thread] = []
+        self.thread_arguments: List[ThreadArgument] = thread_arguments
+        self.thread_arguments_count: int = len(thread_arguments)
+        # configs
+        self.concurrency: int = self.default_concurrency
         self.is_interrupted: bool = False
         self.consumer_lock = RLock()
-        threading.excepthook = except_hook
+        # errors
+        self.error_deque = collections.deque()
+        threading.excepthook = self.add_errors if except_hook is None else except_hook
 
-    def get_error_queue(self) -> collections.deque:
-        return _thread_error_queue.copy()
+    def add_errors(self, error):
+        self.error_deque.append(error)
+
+    def get_errors(self) -> collections.deque:
+        return self.error_deque.copy()
+
+    def get_error_count(self) -> int:
+        return len(self.error_deque)
+
+    def has_error(self) -> bool:
+        return len(self.error_deque) > 0
 
     def set_concurrency(self, number: int):
         """
@@ -81,13 +88,13 @@ class ThreadManager:
     def run(self):
         start_index = 0
         while True:
-            is_exceed_index = start_index >= self.total_thread_arguments_count
+            is_exceed_index = start_index >= self.thread_arguments_count
             if self.is_interrupted or is_exceed_index:
                 return
             # 만약 end_index 가 총 실행 크기 보다 크다면 end_index 를 실행 크기로 맞추어 IndexError 방지
             end_index = start_index + self.concurrency
-            if end_index > self.total_thread_arguments_count:
-                end_index = self.total_thread_arguments_count
+            if end_index > self.thread_arguments_count:
+                end_index = self.thread_arguments_count
 
             self.start_thread(start_index, end_index)
             start_index += self.concurrency
