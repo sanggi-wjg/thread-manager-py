@@ -14,7 +14,7 @@ class TestPackage(unittest.TestCase):
 
         # given
         thread_arguments = [
-            ThreadArgument(thread_name=f"[THREAD-{x}]", args=(f"Thread-{x}", x), kwargs={}, )
+            ThreadArgument(thread_name=f"[THREAD-{x}]", args=(f"Thread-{x}", x))
             for x in range(1, 23)
         ]
         # when
@@ -40,42 +40,65 @@ class TestPackage(unittest.TestCase):
     def test_default_exception_hook(self):
         # given function
         def func_something(*args):
-            raise Exception("test error")
+            raise Exception("test_default_exception_hook")
 
         # given
         thread_arguments = [
-            ThreadArgument(thread_name=f"[THREAD-{x}]", args=(f"Thread-{x}",), kwargs={})
+            ThreadArgument(thread_name=f"[THREAD-{x}]", args=(f"Thread-{x}",))
             for x in range(1, 23)
         ]
         # when
         thread_manager = ThreadManager(func_something, thread_arguments)
         thread_manager.run()
         # then
-        error_queue = thread_manager.get_error_queue()
-        print(error_queue)
-        assert len(error_queue) == 22, f"errors length: {len(error_queue)}"
+        errors = thread_manager.get_errors()
+        for e in errors:
+            print(e)
+        assert thread_manager.has_error()
+        assert thread_manager.get_error_count() == 22, f"Errors Length: {len(errors)}"
+
+    def test_default_exception_hook_2(self):
+        # given function
+        def func_something(*args):
+            raise Exception("test_default_exception_hook_2")
+
+        # given
+        thread_arguments = [
+            ThreadArgument(thread_name=f"[THREAD-{x}]", args=(f"Thread-{x}",))
+            for x in range(1, 23)
+        ]
+        # when
+        thread_manager = ThreadManager(func_something, thread_arguments)
+        thread_manager.run()
+        # then
+        errors = thread_manager.get_errors()
+        for e in errors:
+            print(e)
+        assert thread_manager.has_error()
+        assert thread_manager.get_error_count() == 22, f"Errors Length: {len(errors)}"
 
     def test_custom_exception_hook(self):
         # given function
         def func_something(*args):
             raise Exception("test error")
 
-        errors = []
+        custom_errors = []
 
         def func_exception_hook(*args):
-            errors.append(args)
+            custom_errors.append(args)
 
         # given
         thread_arguments = [
-            ThreadArgument(thread_name=f"[THREAD-{x}]", args=(f"Thread-{x}",), kwargs={})
+            ThreadArgument(thread_name=f"[THREAD-{x}]", args=(f"Thread-{x}",))
             for x in range(1, 23)
         ]
         # when
         thread_manager = ThreadManager(func_something, thread_arguments, except_hook=func_exception_hook)
         thread_manager.run()
         # then
-        print(errors)
-        assert len(errors) == 22, f"errors length: {len(errors)}"
+        for e in custom_errors:
+            print(e)
+        assert len(custom_errors) == 22, f"Errors Length: {len(custom_errors)}"
 
     def test_using_thread_decorator(self):
         # given
