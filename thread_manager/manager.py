@@ -30,7 +30,7 @@ class ThreadManager:
         self.consumer_lock = RLock()
         # errors
         self.error_deque = collections.deque()
-        threading.excepthook = except_hook if self.add_errors is None else except_hook
+        threading.excepthook = self.add_errors if except_hook is None else except_hook
 
     def add_errors(self, error):
         self.error_deque.append(error)
