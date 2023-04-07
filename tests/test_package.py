@@ -21,6 +21,8 @@ class TestPackage(unittest.TestCase):
         thread_manager = ThreadManager(print_something, thread_arguments)
         thread_manager.set_concurrency(15)
         thread_manager.run()
+        # then
+        assert not thread_manager.has_error()
 
     def test_request_get(self):
         # given function
@@ -36,6 +38,8 @@ class TestPackage(unittest.TestCase):
         # when
         thread_manager = ThreadManager(request_something, thread_arguments)
         thread_manager.run()
+        # then
+        assert not thread_manager.has_error()
 
     def test_default_exception_hook(self):
         # given function
@@ -54,6 +58,7 @@ class TestPackage(unittest.TestCase):
         errors = thread_manager.get_errors()
         for e in errors:
             print(e)
+        assert thread_manager.get_errors()
         assert thread_manager.has_error()
         assert thread_manager.get_error_count() == 22, f"Errors Length: {len(errors)}"
 
@@ -74,6 +79,7 @@ class TestPackage(unittest.TestCase):
         errors = thread_manager.get_errors()
         for e in errors:
             print(e)
+        assert thread_manager.get_errors()
         assert thread_manager.has_error()
         assert thread_manager.get_error_count() == 22, f"Errors Length: {len(errors)}"
 
@@ -99,6 +105,8 @@ class TestPackage(unittest.TestCase):
         for e in custom_errors:
             print(e)
         assert len(custom_errors) == 22, f"Errors Length: {len(custom_errors)}"
+        # then
+        assert not thread_manager.has_error()
 
     def test_using_thread_decorator(self):
         # given
