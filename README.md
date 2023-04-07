@@ -35,6 +35,16 @@ thread_manager = ThreadManager(print_something, thread_arguments)
 thread_manager.run()
 ```
 
+### Get Thread Error
+```python
+errors = thread_manager.get_errors()
+has_error = thread_manager.has_error()
+error_count = thread_manager.get_error_count()
+
+for e in errors:
+    print(e)
+```
+
 ## Simple Usage with decorator
 ```python
 from thread_manager import using_thread
@@ -43,9 +53,7 @@ from thread_manager import using_thread
 def print_something(number, **kwargs):
     print(number, kwargs)
 
-# when
 for i in range(10):
-    # then
     print_something(i, name=f"thread-{i}")
 ```
 
