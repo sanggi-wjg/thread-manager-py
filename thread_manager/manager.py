@@ -1,5 +1,6 @@
 import collections
 import threading
+from _thread import _ExceptHookArgs as except_hook_args
 from threading import Thread, RLock
 from typing import List, Callable
 
@@ -30,9 +31,12 @@ class ThreadManager:
         self.consumer_lock = RLock()
         # errors
         self.error_deque = collections.deque()
-        threading.excepthook = self.add_errors if except_hook is None else except_hook
+        self.set_exception_hook(self.add_errors if except_hook is None else except_hook)
 
-    def add_errors(self, error):
+    def set_exception_hook(self, except_hook: Callable):
+        threading.excepthook = except_hook
+
+    def add_errors(self, error: except_hook_args):
         self.error_deque.append(error)
 
     def get_errors(self) -> collections.deque:

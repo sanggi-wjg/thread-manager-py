@@ -5,7 +5,11 @@ import requests as requests
 from thread_manager import ThreadManager, ThreadArgument, using_thread
 
 
-class TestPackage(unittest.TestCase):
+class TestBase(unittest.TestCase):
+    pass
+
+
+class TestThreadManager(TestBase):
 
     def test_print_something(self):
         # given function
