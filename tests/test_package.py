@@ -1,12 +1,62 @@
+import os
 import unittest
 
 import requests as requests
 
+from pool_manager import PoolManager
 from thread_manager import ThreadManager, ThreadArgument, using_thread
 
 
 class TestBase(unittest.TestCase):
     pass
+
+
+def _square(x):
+    print(f"[{os.getpid()}]  func: {x}\t\t", r := x ** 5 ** 2, flush=True)
+    return r
+
+
+class TestPollManager(TestBase):
+    default_range = [i for i in range(2, 22)]
+
+    def test_run(self):
+        # given
+        manager = PoolManager()
+        # when
+        manager.add_task(_square, self.default_range)
+        manager.run()
+        manager.add_task(_square, self.default_range)
+        manager.add_task(_square, self.default_range)
+        manager.run()
+        # then
+        task_result = manager.get_task_result()
+        assert task_result
+
+    def test_run_async(self):
+        # given
+        manager = PoolManager()
+        # when
+        manager.add_task(_square, self.default_range)
+        manager.run_async()
+        manager.add_task(_square, self.default_range)
+        manager.add_task(_square, self.default_range)
+        manager.run_async()
+        # then
+        task_result = manager.get_task_result()
+        assert task_result
+
+    def test_run_imap(self):
+        # given
+        manager = PoolManager()
+        # when
+        manager.add_task(_square, self.default_range)
+        manager.run_imap()
+        manager.add_task(_square, self.default_range)
+        manager.add_task(_square, self.default_range)
+        manager.run_imap()
+        # then
+        task_result = manager.get_task_result()
+        assert task_result
 
 
 class TestThreadManager(TestBase):
