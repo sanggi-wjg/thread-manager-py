@@ -27,6 +27,14 @@ class PoolManager:
     def is_empty_task(self) -> bool:
         return self.task_queue.empty()
 
+    def has_task(self) -> bool:
+        return not self.task_queue.empty()
+
+    def clear_task(self) -> bool:
+        while self.has_task():
+            self.task_queue.get(False)
+        return True
+
     def add_task(self, callable_func: Callable, *arguments: list, priority: int = 100):
         """
 
@@ -48,16 +56,16 @@ class PoolManager:
     def get_task_result(self) -> collections.deque:
         return self.task_result_queue.copy()
 
-    def run(self):
+    def run_map(self):
         """
-
+        https://stackoverflow.com/questions/26520781/multiprocessing-pool-whats-the-difference-between-map-async-and-imap
         """
         while not self.is_empty_task():
             _, func, arguments = self._get_task()
             result = self.pool.map(func, arguments)
             self.add_task_result(result)
 
-    def run_async(self):
+    def run_map_async(self):
         """
 
         """
