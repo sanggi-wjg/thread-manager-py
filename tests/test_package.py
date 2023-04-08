@@ -1,12 +1,73 @@
+import os
 import unittest
 
 import requests as requests
 
+from pool_manager import PoolManager
 from thread_manager import ThreadManager, ThreadArgument, using_thread
 
 
 class TestBase(unittest.TestCase):
     pass
+
+
+def _calculate(x):
+    print(f"[{os.getpid()}]  func: {x}\t\t", r := x ** 5 ** 2, flush=True)
+    return r
+
+
+class TestPollManager(TestBase):
+    default_range = [i for i in range(2, 22)]
+
+    def test_task_queue(self):
+        # given
+        manager = PoolManager()
+        # when
+        manager.add_task(_calculate, [1 for _ in range(2, 22)])
+        # then
+        assert not manager.is_empty_task()
+        assert manager.has_task()
+        assert manager.clear_task()
+        manager.run_map()
+
+    def test_run(self):
+        # given
+        manager = PoolManager()
+        # when
+        manager.add_task(_calculate, self.default_range)
+        manager.run_map()
+        manager.add_task(_calculate, self.default_range)
+        manager.add_task(_calculate, self.default_range)
+        manager.run_map()
+        # then
+        task_result = manager.get_task_result()
+        assert task_result
+
+    def test_run_async(self):
+        # given
+        manager = PoolManager()
+        # when
+        manager.add_task(_calculate, self.default_range)
+        manager.run_map_async()
+        manager.add_task(_calculate, self.default_range)
+        manager.add_task(_calculate, self.default_range)
+        manager.run_map_async()
+        # then
+        task_result = manager.get_task_result()
+        assert task_result
+
+    def test_run_imap(self):
+        # given
+        manager = PoolManager()
+        # when
+        manager.add_task(_calculate, self.default_range)
+        manager.run_imap()
+        manager.add_task(_calculate, self.default_range)
+        manager.add_task(_calculate, self.default_range)
+        manager.run_imap()
+        # then
+        task_result = manager.get_task_result()
+        assert task_result
 
 
 class TestThreadManager(TestBase):
