@@ -6,7 +6,7 @@ Python Thread Manager
 [![PyPI](https://img.shields.io/pypi/pyversions/thread-manager-py.svg)](https://pypi.python.org/pypi/thread-manager-py)
 <br/>
 [![CodeFactor](https://www.codefactor.io/repository/github/sanggi-wjg/thread-manager-py/badge)](https://www.codefactor.io/repository/github/sanggi-wjg/thread-manager-py)
-
+[![PyPI](https://img.shields.io/pypi/dm/thread-manager-py.svg)](https://pypi.org/project/thread-manager-py/)
 
 
 ## Install
