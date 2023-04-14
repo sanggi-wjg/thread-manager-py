@@ -1,10 +1,13 @@
 import collections
+import logging
 import threading
-from _thread import _ExceptHookArgs as except_hook_args
+from _thread import _ExceptHookArgs as ExceptHookArgs
 from threading import Thread, RLock
 from typing import List, Callable
 
 from .argument import ThreadArgument
+
+log = logging.getLogger("thread.manager")
 
 
 class ThreadManager:
@@ -32,12 +35,17 @@ class ThreadManager:
         # errors
         self.error_deque = collections.deque()
         self.set_exception_hook(self.add_errors if except_hook is None else except_hook)
+        log.debug(f"thread manager inited, "
+                  f"func: {self.func.__name__}, "
+                  f"thread_arguments_count: {self.thread_arguments_count}, "
+                  f"except_hook: {'default except_hook' if except_hook is None else except_hook}")
 
     def set_exception_hook(self, except_hook: Callable):
         threading.excepthook = except_hook
 
-    def add_errors(self, error: except_hook_args):
+    def add_errors(self, error: ExceptHookArgs):
         self.error_deque.append(error)
+        log.debug(f"error appended : {error}")
 
     def get_errors(self) -> collections.deque:
         return self.error_deque.copy()
@@ -55,12 +63,14 @@ class ThreadManager:
         :type number: int
         """
         self.concurrency = number
+        log.debug(f"concurrency changed to {number}")
 
     def stop(self):
         """
         Stop ThreadManager
         """
         self.is_interrupted = True
+        log.debug(f"requested to stop")
 
     def start_thread(self, start: int, end: int):
         """
@@ -91,14 +101,13 @@ class ThreadManager:
 
     def run(self):
         start_index = 0
-        while True:
-            is_exceed_index = start_index >= self.thread_arguments_count
-            if self.is_interrupted or is_exceed_index:
-                return
+        # 중지 상태 혹은 완료 되면 종료
+        while not self.is_interrupted and (start_index <= self.thread_arguments_count):
             # 만약 end_index 가 총 실행 크기 보다 크다면 end_index 를 실행 크기로 맞추어 IndexError 방지
             end_index = start_index + self.concurrency
             if end_index > self.thread_arguments_count:
                 end_index = self.thread_arguments_count
 
             self.start_thread(start_index, end_index)
+            log.debug(f"{start_index}~{end_index} threads finished")
             start_index += self.concurrency

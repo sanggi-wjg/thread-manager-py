@@ -1,8 +1,12 @@
 import collections
+import logging
 import multiprocessing
 from multiprocessing import Pool
+from multiprocessing.pool import MapResult, IMapIterator
 from queue import PriorityQueue
 from typing import Callable, Any
+
+log = logging.getLogger("pool.manager")
 
 
 class PoolManager:
@@ -51,34 +55,41 @@ class PoolManager:
         return self.task_queue.get()
 
     def add_task_result(self, task_result: Any):
-        self.task_result_queue.append(task_result)
+        if isinstance(task_result, list):
+            self.task_result_queue.append(task_result)
+
+        elif isinstance(task_result, MapResult):
+            self.task_result_queue.append(task_result.get())
+
+        elif isinstance(task_result, IMapIterator):
+            self.task_result_queue.append([r for r in task_result])
+
+        else:
+            assert False, "task_results not saved."
 
     def get_task_result(self) -> collections.deque:
         return self.task_result_queue.copy()
+
+    def _run(self, pool_func: Callable):
+        while not self.is_empty_task():
+            _, func, arguments = self._get_task()
+            result = pool_func(func, arguments)
+            self.add_task_result(result)
 
     def run_map(self):
         """
         https://stackoverflow.com/questions/26520781/multiprocessing-pool-whats-the-difference-between-map-async-and-imap
         """
-        while not self.is_empty_task():
-            _, func, arguments = self._get_task()
-            result = self.pool.map(func, arguments)
-            self.add_task_result(result)
+        self._run(self.pool.map)
 
     def run_map_async(self):
         """
 
         """
-        while not self.is_empty_task():
-            _, func, arguments = self._get_task()
-            result = self.pool.map_async(func, arguments)
-            self.add_task_result(result.get())
+        self._run(self.pool.map_async)
 
     def run_imap(self):
         """
 
         """
-        while not self.is_empty_task():
-            _, func, arguments = self._get_task()
-            result = self.pool.imap(func, arguments)
-            self.add_task_result([r for r in result])
+        self._run(self.pool.imap)

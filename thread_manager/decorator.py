@@ -9,4 +9,3 @@ def using_thread(func: Callable):
         return th
 
     return decorator
-
