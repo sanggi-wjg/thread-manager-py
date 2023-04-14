@@ -10,13 +10,12 @@ log = logging.getLogger("pool.manager")
 
 
 class PoolManager:
-    _instance = None
     default_timeout = 30
 
     def __new__(cls, *args, **kwargs):
         if not hasattr(cls, 'instance'):
-            cls._instance = super(PoolManager, cls).__new__(cls)
-        return cls._instance
+            cls.instance = super(PoolManager, cls).__new__(cls)
+        return cls.instance
 
     def __init__(self, process_count: int = multiprocessing.cpu_count()):
         """
@@ -27,6 +26,7 @@ class PoolManager:
         self.task_queue: PriorityQueue = PriorityQueue()
         self.task_result_queue: collections.deque = collections.deque()
         self.pool: Pool = Pool(min(process_count, multiprocessing.cpu_count()))
+        log.debug(f"pool manager inited, {min(process_count, multiprocessing.cpu_count())}")
 
     def is_empty_task(self) -> bool:
         return self.task_queue.empty()
@@ -37,6 +37,7 @@ class PoolManager:
     def clear_task(self) -> bool:
         while self.has_task():
             self.task_queue.get(False)
+        log.debug("task_queue cleared")
         return True
 
     def add_task(self, callable_func: Callable, *arguments: list, priority: int = 100):
@@ -50,6 +51,7 @@ class PoolManager:
         :type priority: int
         """
         self.task_queue.put((priority, callable_func, *arguments), timeout=self.default_timeout)
+        log.debug(f"task_queue put, {priority}, {callable_func}. {arguments}")
 
     def _get_task(self) -> Callable:
         return self.task_queue.get()
@@ -65,7 +67,8 @@ class PoolManager:
             self.task_result_queue.append([r for r in task_result])
 
         else:
-            assert False, "task_results not saved."
+            log.warning("task_results not saved.")
+            # assert False, "task_results not saved."
 
     def get_task_result(self) -> collections.deque:
         return self.task_result_queue.copy()
@@ -74,6 +77,7 @@ class PoolManager:
         while not self.is_empty_task():
             _, func, arguments = self._get_task()
             result = pool_func(func, arguments)
+            log.debug(f"task_queue run, {func}")
             self.add_task_result(result)
 
     def run_map(self):

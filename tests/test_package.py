@@ -70,6 +70,24 @@ class TestPollManager(TestBase):
         task_result = manager.get_task_result()
         assert task_result
 
+    def test_logger(self):
+        log = logging.getLogger("pool.manager")
+        log.setLevel(logging.DEBUG)
+        handler = logging.StreamHandler()
+        handler.setLevel(logging.DEBUG)
+        formatter = logging.Formatter("%(asctime)s (%(name)s) (%(levelname)s) [pid:%(process)d] [thread:%(thread)d:%(threadName)s] (%(filename)s L%(lineno)d) %(message)s")
+        handler.setFormatter(formatter)
+        log.addHandler(handler)
+
+        # given
+        manager = PoolManager()
+        # when
+        manager.add_task(self._calculate, self.default_range)
+        manager.run_map()
+        # then
+        task_result = manager.get_task_result()
+        assert task_result
+
 
 class TestThreadManager(TestBase):
     default_arguments = [
@@ -206,3 +224,5 @@ class TestThreadManager(TestBase):
         # then
         thread_manager.run()
         assert not thread_manager.has_error()
+        # revert
+        log.addHandler(logging.NullHandler())
