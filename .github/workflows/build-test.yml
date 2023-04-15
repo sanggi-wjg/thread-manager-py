@@ -43,6 +43,8 @@ jobs:
 
       - name: ✅Generate Report
         run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements-test.txt ]; then pip install -r requirements-test.txt; fi
           pip install coverage
           coverage run -m unittest
 
