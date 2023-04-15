@@ -28,6 +28,12 @@ class PoolManager:
         self.pool: Pool = Pool(min(process_count, multiprocessing.cpu_count()))
         log.debug(f"pool manager inited, {min(process_count, multiprocessing.cpu_count())}")
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+
     def is_empty_task(self) -> bool:
         return self.task_queue.empty()
 
@@ -41,6 +47,7 @@ class PoolManager:
         return True
 
     def close(self):
+        self.clear_task()
         self.pool.close()
 
     def add_task(self, callable_func: Callable, *arguments: list, priority: int = 100):

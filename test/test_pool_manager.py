@@ -5,7 +5,7 @@ from test.test_base import TestBase
 
 
 class TestPollManager(TestBase):
-    default_range = [i for i in range(2, 22)]
+    default_range = [i for i in range(2, 32)]
 
     def test_task_queue(self):
         # given
@@ -18,6 +18,15 @@ class TestPollManager(TestBase):
         assert manager.clear_task()
         manager.run_map()
         manager.close()
+
+    def test_context_manager(self):
+        with PoolManager() as manager:
+            manager.add_task(self._calculate, self.default_range)
+            manager.add_task(self._calculate, self.default_range)
+            manager.add_task(self._calculate, self.default_range)
+            manager.run_map()
+            assert manager.get_task_result()
+            assert not manager.has_task()
 
     def test_run(self):
         # given
