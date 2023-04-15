@@ -1,92 +1,9 @@
 import logging
-import os
-import unittest
 
-import requests as requests
+import requests
 
-from pool_manager import PoolManager
+from test.test_base import TestBase
 from thread_manager import ThreadManager, ThreadArgument, using_thread
-
-
-class TestBase(unittest.TestCase):
-    pass
-
-
-class TestPollManager(TestBase):
-    default_range = [i for i in range(2, 22)]
-
-    @classmethod
-    def _calculate(cls, x):
-        print(f"[{os.getpid()}]  func: {x}\t\t", r := x ** 5 ** 2, flush=True)
-        return r
-
-    def test_task_queue(self):
-        # given
-        manager = PoolManager()
-        # when
-        manager.add_task(self._calculate, [1 for _ in range(2, 22)])
-        # then
-        assert not manager.is_empty_task()
-        assert manager.has_task()
-        assert manager.clear_task()
-        manager.run_map()
-
-    def test_run(self):
-        # given
-        manager = PoolManager()
-        # when
-        manager.add_task(self._calculate, self.default_range)
-        manager.run_map()
-        manager.add_task(self._calculate, self.default_range)
-        manager.add_task(self._calculate, self.default_range)
-        manager.run_map()
-        # then
-        task_result = manager.get_task_result()
-        assert task_result
-
-    def test_run_async(self):
-        # given
-        manager = PoolManager()
-        # when
-        manager.add_task(self._calculate, self.default_range)
-        manager.run_map_async()
-        manager.add_task(self._calculate, self.default_range)
-        manager.add_task(self._calculate, self.default_range)
-        manager.run_map_async()
-        # then
-        task_result = manager.get_task_result()
-        assert task_result
-
-    def test_run_imap(self):
-        # given
-        manager = PoolManager()
-        # when
-        manager.add_task(self._calculate, self.default_range)
-        manager.run_imap()
-        manager.add_task(self._calculate, self.default_range)
-        manager.add_task(self._calculate, self.default_range)
-        manager.run_imap()
-        # then
-        task_result = manager.get_task_result()
-        assert task_result
-
-    def test_logger(self):
-        log = logging.getLogger("pool.manager")
-        log.setLevel(logging.DEBUG)
-        handler = logging.StreamHandler()
-        handler.setLevel(logging.DEBUG)
-        formatter = logging.Formatter("%(asctime)s (%(name)s) (%(levelname)s) [pid:%(process)d] [thread:%(thread)d:%(threadName)s] (%(filename)s L%(lineno)d) %(message)s")
-        handler.setFormatter(formatter)
-        log.addHandler(handler)
-
-        # given
-        manager = PoolManager()
-        # when
-        manager.add_task(self._calculate, self.default_range)
-        manager.run_map()
-        # then
-        task_result = manager.get_task_result()
-        assert task_result
 
 
 class TestThreadManager(TestBase):
@@ -202,7 +119,8 @@ class TestThreadManager(TestBase):
             print_something(i, name=f"thread-{i}")
 
     def test_logger(self):
-        log = logging.getLogger("thread.manager")
+        # given
+        log = self.get_test_logger("thread.manager")
 
         # given function
         def print_something(name: str, number: int):
@@ -211,18 +129,11 @@ class TestThreadManager(TestBase):
             else:
                 log.info(f"{name} {number}")
 
-        # given
-        log.setLevel(logging.DEBUG)
-        handler = logging.StreamHandler()
-        handler.setLevel(logging.DEBUG)
-        # https://docs.python.org/ko/3/library/logging.html#logrecord-attributes
-        formatter = logging.Formatter("%(asctime)s (%(name)s) (%(levelname)s) [pid:%(process)d] [thread:%(thread)d:%(threadName)s] (%(filename)s L%(lineno)d) %(message)s")
-        handler.setFormatter(formatter)
-        log.addHandler(handler)
         # when
         thread_manager = ThreadManager(print_something, self.default_arguments)
         # then
         thread_manager.run()
         assert not thread_manager.has_error()
         # revert
+        log.removeHandler(self.logger_handler)
         log.addHandler(logging.NullHandler())

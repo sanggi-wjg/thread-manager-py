@@ -40,6 +40,9 @@ class PoolManager:
         log.debug("task_queue cleared")
         return True
 
+    def close(self):
+        self.pool.close()
+
     def add_task(self, callable_func: Callable, *arguments: list, priority: int = 100):
         """
 

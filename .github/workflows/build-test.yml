@@ -27,7 +27,7 @@ jobs:
 
       - name: ✅Test
         run: |
-          python -m unittest tests.test_package
+          python -m unittest
 
   report-codecov:
     runs-on: ubuntu-latest
