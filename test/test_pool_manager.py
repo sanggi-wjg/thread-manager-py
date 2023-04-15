@@ -9,7 +9,7 @@ class TestPollManager(TestBase):
 
     def test_task_queue(self):
         # given
-        manager = PoolManager()
+        manager = PoolManager(2)
         # when
         manager.add_task(self._calculate, self.default_range)
         # then
