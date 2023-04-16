@@ -16,7 +16,7 @@ pip install thread-manager-py
 
 
 ## Pool Manager Usage
-#### You can find examples in `tests/test_package.py`.
+#### You can find examples in `test/test_pool_manager.py`.
 
 
 ### Simple Usage
@@ -24,23 +24,32 @@ pip install thread-manager-py
 import os
 from pool_manager import PoolManager
 
-def _calculate(x):
+def calculate(x):
     print(f"[{os.getpid()}]  func: {x}\t\t", r := x ** 5 ** 2, flush=True)
     return r
 
 manager = PoolManager()
-manager.add_task(_calculate, [i for i in range(2, 22)])
+manager.add_task(calculate, [i for i in range(2, 22)])
 manager.run_map()
-manager.add_task(_calculate, [i for i in range(2, 22)])
-manager.add_task(_calculate, [i for i in range(2, 22)])
+
+manager.add_task(calculate, [i for i in range(2, 22)])
+manager.add_task(calculate, [i for i in range(2, 22)])
 manager.run_map()
+
 task_result = manager.get_task_result()
 ```
 
+```python
+with PoolManager() as manager:
+    manager.add_task(calculate, [i for i in range(2, 22)])
+    manager.add_task(calculate, [i for i in range(2, 22)])
+    manager.add_task(calculate, [i for i in range(2, 22)])
+    manager.run_map()
+```
 
 
 ## Thread Manager Usage
-#### You can find examples in `tests/test_package.py`.
+#### You can find examples in `test/test_thread_manager.py`.
 
 
 ### Simple Usage
@@ -52,8 +61,10 @@ def print_something(name: str, number: int):
     print(name, number)
     time.sleep(1)
 
+    
 thread_manager = ThreadManager(print_something, [
-    ThreadArgument(thread_name=f"Thread:{x}", args=(x, x), kwargs={}, ) for x in range(1, 23)
+    ThreadArgument(thread_name=f"Thread:{x}", args=(x, x) )
+    for x in range(1, 23)
 ])
 thread_manager.run()
 ```
