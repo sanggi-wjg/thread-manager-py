@@ -110,13 +110,13 @@ class TestThreadManager(TestBase):
     def test_using_thread_decorator(self):
         # given
         @using_thread
-        def print_something(number, **kwargs):
-            print(number, kwargs)
+        def print_something(number, *args, **kwargs):
+            print(number, args, kwargs)
 
         # when
         for i in range(10):
             # then
-            print_something(i, name=f"thread-{i}")
+            print_something(i, i, i, name=f"thread-{i}")
 
     def test_logger(self):
         # given
