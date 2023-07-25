@@ -13,7 +13,7 @@ log = logging.getLogger("thread.manager")
 class ThreadManager:
     default_concurrency = 10
 
-    def __init__(self, callable_func: Callable, thread_arguments: List[ThreadArgument], except_hook: Callable = None):
+    def __init__(self, callable_func: Callable, thread_arguments: List[ThreadArgument] = None, except_hook: Callable = None):
         """
         Constructor
         :param callable_func: source function, 실행할 함수
@@ -26,8 +26,8 @@ class ThreadManager:
         self.func: Callable = callable_func
         # threads
         self.threads: List[Thread] = []
-        self.thread_arguments: List[ThreadArgument] = thread_arguments
-        self.thread_arguments_count: int = len(thread_arguments)
+        self.thread_arguments: List[ThreadArgument] = thread_arguments if thread_arguments is not None else []
+        self.thread_arguments_count: int = len(self.thread_arguments)
         # configs
         self.concurrency: int = self.default_concurrency
         self.is_interrupted: bool = False
@@ -71,6 +71,16 @@ class ThreadManager:
         """
         self.is_interrupted = True
         log.debug(f"requested to stop")
+
+    @classmethod
+    def start_thread_only_func(cls, func: Callable, concurrency: int = 10):
+        consumer_lock = RLock()
+        with consumer_lock:
+            threads = [Thread(target=func) for _ in range(concurrency)]
+            for th in threads:
+                th.start()
+            for th in threads:
+                th.join()
 
     def start_thread(self, start: int, end: int):
         """

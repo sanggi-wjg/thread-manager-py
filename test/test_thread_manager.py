@@ -1,4 +1,5 @@
 import logging
+import random
 
 import requests
 
@@ -11,6 +12,15 @@ class TestThreadManager(TestBase):
         ThreadArgument(thread_name=f"[THREAD-{x}]", args=(f"Thread-{x}", x))
         for x in range(1, 23)
     ]
+
+    def test_no_args_func(self):
+        # given function
+        def print_something():
+            print(random.randint(0, 100))
+
+        # when
+        ThreadManager.start_thread_only_func(print_something, concurrency=20)
+        # then
 
     def test_print_something(self):
         # given function
